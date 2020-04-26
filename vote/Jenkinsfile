@@ -15,7 +15,7 @@ pipeline{
       steps{
         echo 'Building vote app'
         dir('vote'){
-          pip install -i requirements.txt
+          sh -c 'pip install -i requirements.txt'
         }
       }
     }
@@ -27,7 +27,7 @@ pipeline{
       steps{
         echo 'Running tests on vote app'
         dir('vote'){
-          nosetests -v
+         sh -c 'nosetests -v'
         }
       }
     }
