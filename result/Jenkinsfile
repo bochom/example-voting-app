@@ -40,11 +40,15 @@ pipeline{
         }
       }
     }
-    
+   
+    /* in this course branch feature/builds contains a slash and it doess't work with docker tag name, instead use branch master */  
     stage("docker-build"){
       agent any
       
-      when{ changeset "**/result/**" }
+      when{ 
+        changeset "**/result/**" 
+        branch "master"
+      }
     
       steps{
         echo "Using docker to package"
