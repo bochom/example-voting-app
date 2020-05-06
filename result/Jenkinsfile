@@ -1,13 +1,15 @@
 pipeline{
-  agent any
-  
-  tools{ 
-   nodejs 'NodeJS 8.9.0' 
-  }
+  agent none
   
   stages{
     
     stage(build){
+      agent{
+        docker{
+        image "node:8.9-alpine"
+        }
+      }
+
       when{
        changeset "**/result/**"
       }
@@ -22,6 +24,12 @@ pipeline{
     }
     
     stage(test){
+      agent{
+        docker{
+          image "node:8.9-alpine"
+        }
+      }
+
       when{ changeset "**/result/**"}
       
       steps{
@@ -29,6 +37,25 @@ pipeline{
           echo 'testing result-app'
           sh 'npm install'
           sh 'npm test'
+        }
+      }
+    }
+    
+    stage("docker-build"){
+      agent any
+      
+      when{ changeset "**/result/**" }
+    
+      steps{
+        dir('result'){
+          echo "Using docker to package"
+          script{
+            docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
+              def voteImage = docker.build("abrahambelloso/result:v${env.BUILD_ID}", "./result")
+              voteImage.push()
+              voteImage.push("${env.BRANCH_NAME}")
+            }
+          }
         }
       }
     }
